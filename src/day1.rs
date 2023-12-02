@@ -32,12 +32,10 @@
 //!
 //! For example:
 //!
-//! ```not_rust
 //! 1abc2
 //! pqr3stu8vwx
 //! a1b2c3d4e5f
 //! treb7uchet
-//! ```
 //!
 //! In this example, the calibration values of these four lines are 12, 38, 15,
 //! and 77. Adding these together produces 142.
@@ -46,18 +44,19 @@
 //! calibration values?
 
 use std::collections::HashMap;
-
 use unicode_segmentation::UnicodeSegmentation;
 
 pub fn run(example: bool) {
-    tracing::info!("day 1 part 1");
+    tracing::info!("day 1 part 1{}", if example { " example" } else { "" });
     tracing::info!(
-        "day 1 part 1 result: {}",
+        "day 1 part 1{} result: {}",
+        if example { " example" } else { "" },
         part1(crate::day_data!(example, 1))
     );
-    tracing::info!("day 1 part 2");
+    tracing::info!("day 1 part 2{}", if example { " example" } else { "" });
     tracing::info!(
-        "day 1 part 2 result: {}",
+        "day 1 part 2{} result: {}",
+        if example { " example" } else { "" },
         part2(crate::day_data!(example, 2))
     );
 }

@@ -39,7 +39,7 @@ macro_rules! main {
             let args = std::env::args().collect::<Vec<_>>();
             let example_arg = args.iter().any(|arg| arg == "--example");
             let day_args = args.iter().filter_map(|arg| arg.parse::<u8>().ok()).collect::<Vec<_>>();
-            let day_nums = vec![$(stringify!($day_nums).parse::<u8>().unwrap())*];
+            let day_nums = vec![$(stringify!($day_nums).parse::<u8>().unwrap()),*];
 
             let mut not_a_day = false;
             for day_arg in day_args.iter() {
@@ -57,10 +57,10 @@ macro_rules! main {
             })*
 
             if day_args.is_empty() {
-                $([< day $day_nums >]::run(example_arg))*;
+                $([< day $day_nums >]::run(example_arg);)*
             }
         }
     } };
 }
 
-main!(1);
+main!(1, 2);

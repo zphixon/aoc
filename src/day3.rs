@@ -96,17 +96,23 @@ use std::{
 use unicode_segmentation::UnicodeSegmentation;
 
 pub fn run(example: bool) {
+    let data = if example {
+        include_str!("../data/example/day3.1.txt")
+    } else {
+        include_str!("../data/day3.1.txt")
+    };
+
     tracing::info!("day 3 part 1{}", if example { " example" } else { "" });
     tracing::info!(
         "day 3 part 1{} result: {}",
         if example { " example" } else { "" },
-        part1(crate::day_data!(example, 1)),
+        part1(data),
     );
     tracing::info!("day 3 part 2{}", if example { " example" } else { "" });
     tracing::info!(
         "day 3 part 2{} result: {}",
         if example { " example" } else { "" },
-        part2(crate::day_data!(example, 1)), // same data
+        part2(data), // same data
     );
 }
 
@@ -203,7 +209,7 @@ impl Debug for NumberCoordinate {
     }
 }
 
-fn part1(data: String) -> usize {
+fn part1(data: &str) -> usize {
     let mut sum = 0;
 
     let schematic = data
@@ -247,7 +253,7 @@ fn part1(data: String) -> usize {
     sum
 }
 
-fn part2(data: String) -> usize {
+fn part2(data: &str) -> usize {
     let mut sum = 0;
 
     let schematic = data

@@ -91,17 +91,23 @@
 use std::collections::HashMap;
 
 pub fn run(example: bool) {
+    let data = if example {
+        include_str!("../data/example/day2.1.txt")
+    } else {
+        include_str!("../data/day2.1.txt")
+    };
+
     tracing::info!("day 2 part 1{}", if example { " example" } else { "" });
     tracing::info!(
         "day 2 part 1{} result: {}",
         if example { " example" } else { "" },
-        part1(crate::day_data!(example, 1)),
+        part1(data),
     );
     tracing::info!("day 2 part 2{}", if example { " example" } else { "" });
     tracing::info!(
         "day 2 part 2{} result: {}",
         if example { " example" } else { "" },
-        part2(crate::day_data!(example, 1)), // same data
+        part2(data), // same data
     );
 }
 
@@ -177,7 +183,7 @@ impl std::str::FromStr for Game {
     }
 }
 
-fn part1(data: String) -> usize {
+fn part1(data: &str) -> usize {
     let num_red = 12;
     let num_green = 13;
     let num_blue = 14;
@@ -211,7 +217,7 @@ fn part1(data: String) -> usize {
     possible
 }
 
-fn part2(data: String) -> usize {
+fn part2(data: &str) -> usize {
     let mut sum = 0;
 
     for line in data.lines() {

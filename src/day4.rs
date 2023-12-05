@@ -119,17 +119,24 @@
 use std::{fmt::Debug, hash::Hash, str::FromStr};
 
 pub fn run(example: bool) {
+    // same data
+    let part1_data = if example {
+        include_str!("../data/example/day4.1.txt")
+    } else {
+        include_str!("../data/day4.1.txt")
+    };
+
     tracing::info!("day 4 part 1{}", if example { " example" } else { "" });
     tracing::info!(
         "day 4 part 1{} result: {}",
         if example { " example" } else { "" },
-        part1(crate::day_data!(example, 1)),
+        part1(part1_data),
     );
     tracing::info!("day 4 part 2{}", if example { " example" } else { "" });
     tracing::info!(
         "day 4 part 2{} result: {}",
         if example { " example" } else { "" },
-        part2(crate::day_data!(example, 1)), // same data
+        part2(part1_data),
     );
 }
 
@@ -217,7 +224,7 @@ impl Hash for Card {
     }
 }
 
-fn part1(data: String) -> usize {
+fn part1(data: &str) -> usize {
     let mut sum = 0;
 
     for line in data.lines() {
@@ -240,8 +247,12 @@ fn part1(data: String) -> usize {
     sum
 }
 
-fn part2(data: String) -> usize {
-    let cards = data.lines().map(Card::from_str).collect::<Result<Vec<_>, _>>().unwrap();
+fn part2(data: &str) -> usize {
+    let cards = data
+        .lines()
+        .map(Card::from_str)
+        .collect::<Result<Vec<_>, _>>()
+        .unwrap();
     let mut card_nums = vec![1; cards.len()];
 
     for (i, card) in cards.iter().enumerate() {

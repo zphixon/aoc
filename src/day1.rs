@@ -42,17 +42,17 @@
 //!
 //! Consider your entire calibration document. What is the sum of all of the
 //! calibration values?
-//! 
-//! 
+//!
+//!
 //! --- Part Two ---
 //!
 //! Your calculation isn't quite right. It looks like some of the digits are
 //! actually spelled out with letters: one, two, three, four, five, six, seven,
 //! eight, and nine also count as valid "digits".
-//! 
+//!
 //! Equipped with this new information, you now need to find the real first and
 //! last digit on each line. For example:
-//! 
+//!
 //! two1nine
 //! eightwothree
 //! abcone2threexyz
@@ -60,32 +60,43 @@
 //! 4nineeightseven2
 //! zoneight234
 //! 7pqrstsixteen
-//! 
+//!
 //! In this example, the calibration values are 29, 83, 13, 24, 42, 14, and 76.
 //! Adding these together produces 281.
-//! 
+//!
 //! What is the sum of all of the calibration values?
-
 
 use std::collections::HashMap;
 use unicode_segmentation::UnicodeSegmentation;
 
 pub fn run(example: bool) {
+    let part1_data = if example {
+        include_str!("../data/example/day1.1.txt")
+    } else {
+        include_str!("../data/day1.1.txt")
+    };
+    let part2_data = if example {
+        include_str!("../data/example/day1.2.txt")
+    } else {
+        // same data
+        include_str!("../data/day1.1.txt")
+    };
+
     tracing::info!("day 1 part 1{}", if example { " example" } else { "" });
     tracing::info!(
         "day 1 part 1{} result: {}",
         if example { " example" } else { "" },
-        part1(crate::day_data!(example, 1))
+        part1(part1_data)
     );
     tracing::info!("day 1 part 2{}", if example { " example" } else { "" });
     tracing::info!(
         "day 1 part 2{} result: {}",
         if example { " example" } else { "" },
-        part2(crate::day_data!(example, 2))
+        part2(part2_data)
     );
 }
 
-fn part1(data: String) -> i64 {
+fn part1(data: &str) -> i64 {
     let mut sum = 0;
 
     for line in data.lines() {
@@ -113,7 +124,7 @@ fn part1(data: String) -> i64 {
     sum
 }
 
-fn part2(data: String) -> i64 {
+fn part2(data: &str) -> i64 {
     let mut sum = 0;
 
     let words = vec![

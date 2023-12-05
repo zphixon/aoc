@@ -1,34 +1,3 @@
-#[macro_export]
-macro_rules! day_data {
-    ($example:expr $(, $part:expr)?) => {{
-        let example = $example;
-
-        #[allow(unused)]
-        let part = "1";
-        $(let part = format!("{}", $part);)?
-
-        let rust_file_stem = ::std::path::PathBuf::from(file!()).file_stem().unwrap().to_string_lossy().to_string();
-
-        let file_txt = ::std::path::PathBuf::from(format!("{}.{}.txt", rust_file_stem, part))
-            .file_name()
-            .unwrap()
-            .to_string_lossy()
-            .to_string();
-
-        let data_dir = ::std::env::current_dir().unwrap().join("data");
-
-        let data_file = if example {
-            data_dir.join("example")
-        } else {
-            data_dir
-        }
-        .join(file_txt);
-
-        ::std::fs::read_to_string(&data_file)
-            .expect(&format!("cannot read file {}", data_file.display()))
-    }};
-}
-
 macro_rules! main {
     ($($day_nums:tt),*) => { paste::paste! {
         $(mod [< day $day_nums >];)*

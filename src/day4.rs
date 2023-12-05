@@ -282,3 +282,12 @@ fn part2(data: &str) -> usize {
 
     card_nums.iter().sum()
 }
+
+#[test]
+fn test1() {
+    assert_eq!(part1(include_str!("../data/day4.1.txt")), 22897);
+}
+#[test]
+fn test2() {
+    assert_eq!(part2(include_str!("../data/day4.1.txt")), 5095824);
+}

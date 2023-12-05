@@ -184,3 +184,12 @@ fn part2(data: &str) -> i64 {
 
     sum
 }
+
+#[test]
+fn test1() {
+    assert_eq!(part1(include_str!("../data/day1.1.txt")), 54573);
+}
+#[test]
+fn test2() {
+    assert_eq!(part2(include_str!("../data/day1.1.txt")), 54591);
+}

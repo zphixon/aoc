@@ -305,3 +305,12 @@ fn part2(data: &str) -> usize {
 
     sum
 }
+
+#[test]
+fn test1() {
+    assert_eq!(part1(include_str!("../data/day3.1.txt")), 533775);
+}
+#[test]
+fn test2() {
+    assert_eq!(part2(include_str!("../data/day3.1.txt")), 78236071);
+}

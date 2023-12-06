@@ -32,4 +32,4 @@ macro_rules! main {
     } };
 }
 
-main!(1, 2, 3, 4);
+main!(1, 2, 3, 4, 5);

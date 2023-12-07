@@ -534,6 +534,7 @@ fn maps_correctly() {
 fn test1() {
     assert_eq!(part1(include_str!("../data/day5.1.txt")), 173706076);
 }
+#[allow(unreachable_code)]
 #[test]
 fn test2() {
     panic!("this thing is stupid slow. if you really wanna, remove this panic and use something like \"sudo nice -n -20 cargo test\"");

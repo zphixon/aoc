@@ -206,29 +206,41 @@ fn races(data: &str) -> Result<Vec<Race>, ()> {
 }
 
 fn calculate_combos(race: Race) -> usize {
-    // larger numbers would probably warrant arbitrary-precision floats
+    // larger numbers would  warrant arbitrary-precision floats
     let time = race.time_ms as f64;
     let dist = race.record_mm as f64;
 
-    let x1 = 0.5 * (time - (time.powi(2) - 4. * dist).sqrt());
-    let x2 = 0.5 * (time + (time.powi(2) - 4. * dist).sqrt());
+    // button time is the same as the speed, so
+    //     distance = button time * (race time - button time)
+    // solving for button time
+    //     button time = 1/2 (race time +/- sqrt(race time^2 - 4 * distance))
+    let low = 0.5 * (time - (time.powi(2) - 4. * dist).sqrt());
+    let high = 0.5 * (time + (time.powi(2) - 4. * dist).sqrt());
 
-    let min = x1.min(x2);
-    let max = x1.max(x2);
+    // low button time and high button time to get existing record result
+    // i.e. distance = low/high * (race time - low/high)
+    let low = low.min(high);
+    let high = low.max(high);
 
-    let new_min = (min + 1.).floor() as usize;
-    let new_max = (max - 1.).ceil() as usize;
-    let num_hold = new_max - new_min + 1;
+    // take low to the next highest integer, high to the next lowest integer
+    //     e.g. low 5.0 -> 6, high 9.8 -> 9
+    // so that old distance < new distance
+    //     new distance = new low/high * (race time - new low/high)
+    let new_low = (low + 1.).floor() as usize;
+    let new_high = (high - 1.).ceil() as usize;
+
+    // find number of integers between them (including low/high)
+    let num_hold = new_high - new_low + 1;
 
     tracing::debug!(
         "winner of {:?} held {} rode {} to go {}, we should hold at least {} ride {} to go {}, {} combos",
         race,
-        min,
-        max,
-        min * (race.time_ms as f64 - min),
-        new_min,
-        new_max,
-        new_min * (race.time_ms - new_min),
+        low,
+        high,
+        low * (race.time_ms as f64 - low),
+        new_low,
+        new_high,
+        new_low * (race.time_ms - new_low),
         num_hold,
     );
 

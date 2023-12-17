@@ -83,39 +83,133 @@ fn show_note(note: &[Vec<Tile>]) {
     tracing::trace!("{}", dis);
 }
 
-fn check_row_reflection(note: &[Vec<Tile>]) {
-    let mut stack = Vec::new();
+fn col_eq(note: &[Vec<Tile>], left: usize, right: usize) -> bool {
+    let mut msg = format!("compare cols {} and {}\n", left, right);
+    let result = (0..note.len())
+        .map(|row_i| note[row_i][left])
+        .zip((0..note.len()).map(|row_i| note[row_i][right]))
+        .all(|(l, r)| {
+            msg += &format!("{:?} {:?}\n", l, r);
+            l == r
+        });
+    tracing::trace!("{}", msg);
+    result
+}
 
-    let mut num_mirrored = 0;
-    let mut mirrored = false;
+fn row_eq(note: &[Vec<Tile>], up: usize, down: usize) -> bool {
+    tracing::trace!(
+        "compare rows {} and {}\n{:?}\n{:?}",
+        up,
+        down,
+        note[up],
+        note[down]
+    );
+    note[up] == note[down]
+}
 
-    for (row_i, row) in note.iter().enumerate() {
-        if stack.last() == Some(row) {
-            tracing::trace!("{row:?} row reflection detected at {row_i}");
-            mirrored = true;
-            num_mirrored += 1;
-            stack.pop();
-        } else {
-            tracing::trace!("{row:?} not reflected (yet?)");
-            stack.push(row.clone());
-            mirrored = false;
-            num_mirrored = 0;
+fn check_row_reflection(note: &[Vec<Tile>]) -> usize {
+    let mut sum = 0;
+    let mut start = 0;
+
+    while start + 1 < note.len() {
+        let mut up = start;
+        let mut down = start + 1;
+
+        loop {
+            if row_eq(note, up, down) {
+                sum += 1;
+                tracing::trace!("nice {}", sum);
+            } else {
+                sum = 0;
+                tracing::trace!("oop");
+                break;
+            }
+
+            if up == 0 {
+                break;
+            }
+
+            up -= 1;
+            down += 1;
+
+            if down == note.len() {
+                break;
+            }
         }
+
+        if (up == 0 || down == note.len()) && sum != 0 {
+            tracing::trace!("heyo");
+            break;
+        }
+
+        start += 1;
     }
 
-    if mirrored {
+    let mirrored = if sum != 0 { start + 1 } else { 0 };
+    tracing::debug!("mirrored {} rows up", mirrored);
+    mirrored
+}
 
+fn check_col_reflection(note: &[Vec<Tile>]) -> usize {
+    let mut sum = 0;
+    let mut start = 0;
+    let width = note[0].len();
+
+    while start + 1 < width {
+        let mut left = start;
+        let mut right = start + 1;
+
+        loop {
+            if col_eq(note, left, right) {
+                sum += 1;
+                tracing::trace!("nice {}", sum);
+            } else {
+                sum = 0;
+                tracing::trace!("oop");
+                break;
+            }
+
+            if left == 0 {
+                break;
+            }
+
+            left -= 1;
+            right += 1;
+
+            if right == width {
+                break;
+            }
+        }
+
+        if (left == 0 || right == width) && sum != 0 {
+            tracing::trace!("heyo start={start}");
+            break;
+        }
+
+        start += 1;
     }
+
+    let mirrored = if sum == 0 { 0 } else { start + 1 };
+    tracing::debug!("mirrored {} cols left", mirrored);
+    mirrored
 }
 
 fn part1(data: &str) -> usize {
     let notes = parse(data);
+    let mut row_sum = 0;
+    let mut col_sum = 0;
+
     for note in notes.iter() {
         show_note(note);
-        check_row_reflection(note);
+        row_sum += check_row_reflection(note);
+        col_sum += check_col_reflection(note);
+
+        //tracing::info!("waiting for input");
+        //let mut b = String::new();
+        //std::io::stdin().read_line(&mut b).unwrap();
     }
 
-    0
+    col_sum + (100 * row_sum)
 }
 
 fn part2(data: &str) -> usize {
@@ -124,7 +218,7 @@ fn part2(data: &str) -> usize {
 
 #[test]
 fn test1() {
-    assert_eq!(part1(include_str!("../data/day13.1.txt")), 9957702);
+    assert_eq!(part1(include_str!("../data/day13.1.txt")), 29846);
 }
 #[test]
 fn test2() {

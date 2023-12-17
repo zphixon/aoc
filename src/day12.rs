@@ -1,4 +1,3 @@
-use itertools::Itertools;
 use std::{
     fmt::{Debug, Display},
     str::FromStr,
@@ -122,6 +121,7 @@ fn num_arrangements_rec(mut states: &[State], runs: &[usize], indent_n: usize) -
 
     tracing::trace!("{indent}states={states:?} runs={runs:?}");
 
+    // remove leading and trailing .s
     while !states.is_empty() && states[0] == State::Working {
         states = &states[1..];
     }
@@ -130,22 +130,27 @@ fn num_arrangements_rec(mut states: &[State], runs: &[usize], indent_n: usize) -
     }
 
     if states.is_empty() && runs.is_empty() {
-        tracing::trace!("{indent}double nice");
-        return 2;
-    }
-    if states.iter().all(State::maybe_working) && runs.is_empty() {
-        tracing::trace!("{indent}nice");
+        // it looks like this never happens?
+        tracing::trace!("{indent}nice 1");
         return 1;
     }
+
+    if states.iter().all(State::maybe_working) && runs.is_empty() {
+        // everything left is ? or . and no more runs left
+        tracing::trace!("{indent}nice 2");
+        return 1;
+    }
+
     if states.is_empty() || runs.is_empty() {
+        tracing::trace!("{indent}empty");
         return 0;
     }
 
     let run = runs[0];
-
     tracing::trace!("{indent}run={run} trimmed={states:?}");
 
     if run > states.len() {
+        tracing::trace!("{indent}not enough states left");
         return 0;
     }
 
@@ -154,97 +159,78 @@ fn num_arrangements_rec(mut states: &[State], runs: &[usize], indent_n: usize) -
         && states[0..run].iter().all(State::maybe_broken)
         && states[run..].iter().all(|&state| state == State::Working)
     {
-        tracing::trace!("{indent}nice");
+        // everything within the run is ? or # and everything beyond is .
+        // (should this also count #, idk?)
+        tracing::trace!("{indent}nice 3");
         return 1;
     }
 
-    let mut pushed = None;
+    let mut left = None;
+    let mut right = states.get(run).copied();
     let mut sum = 0;
-    for (window_num, window) in states.windows(run + 1).enumerate() {
-        tracing::trace!("{indent}window={window:?} window_num={window_num} pushed={pushed:?}");
+    for (window_num, window) in states.windows(run).enumerate() {
+        tracing::trace!(
+            "{indent}run={run} left={left:?} window={window:?} right={right:?} window_num={window_num}"
+        );
+        
+        let must_go_here = window[0] == State::Broken;
+        if must_go_here {
+            tracing::trace!("{indent}must go here");
+        }
 
-        if pushed != Some(State::Broken)
+        // in the case where window is ??##
+        //   L??##R....
+        //    ^^^^
+        // it can fit there only if L and R are None or not #
+        if left != Some(State::Broken)
             && window[..run].iter().all(State::maybe_broken)
-            && window[window.len() - 1] != State::Broken
+            && right != Some(State::Broken)
         {
-            let must_go_here = window[..run].iter().all(|&state| state == State::Broken);
-            if must_go_here {
-                tracing::trace!("{indent}must go here");
+            if window_num + run + 1 >= states.len() {
+                if runs.len() == 1 {
+                    // right will be None after this, and we cannot recur, but
+                    // it fits here
+                    tracing::trace!("{indent}fits nicely");
+                    sum += 1;
+                } else {
+                    tracing::trace!("{indent}fits but more runs left");
+                }
             } else {
+                // check states after R (....) for the next run
                 tracing::trace!("{indent}fits");
-            }
-            sum += num_arrangements_rec(&states[window_num + run + 1..], &runs[1..], indent_n + 1);
-            if must_go_here {
-                break;
+                sum +=
+                    num_arrangements_rec(&states[window_num + run + 1..], &runs[1..], indent_n + 1);
             }
         }
 
-        pushed = Some(window[0]);
+        left = Some(window[0]);
+        right = states.get(window_num + run + 1).copied();
+
+        if must_go_here {
+            // the first spring in this window is broken, the run cannot appear
+            // later. for example, with run length 3,
+            //   ??#?????
+            //     ^^^
+            // if we were to check
+            //   ??#?????
+            //       ^^^
+            // we would accidentally be introducing a run of 1
+            break;
+        }
     }
 
     sum
 }
 
-fn num_arrangements(mut states: &[State], runs: &[usize]) -> usize {
+fn num_arrangements(states: &[State], runs: &[usize]) -> usize {
     num_arrangements_rec(states, runs, 0)
-}
-
-fn placements_rec(mut states: &[State], mut runs: &[usize], indent_n: usize) -> usize {
-    // ...###...##...##.... 3,2,2
-    // 0 1 1
-    // ###.##.##...........
-    // 0 1 2
-    // ###.##..##..........
-    // 0 1 3
-    // ###.##...##.........
-    // 0 1 x
-    // ###.##............##
-    // 0 2 1
-    // ###..##.##..........
-    // 0 2 x
-    // ###..##...........##
-    // 0 3 1
-    // ###...##.##.........
-    // 0 y x
-    // ###............##.##
-    // 1 1 1
-    // .###.##.##..........
-
-    let runs_len = runs.iter().sum::<usize>() + runs.len() - 1;
-    tracing::trace!("runs_len={runs_len}");
-
-    for run_start in 0..states.len() - runs_len + 1{
-        let mut starts = vec![run_start; runs.len()];
-        for i in 1..runs.len() {
-            starts[i] = starts[i-1] + runs[i-1] + 1;
-        }
-        tracing::trace!("runs={runs:?}");
-        tracing::trace!("starts={starts:?}");
-    }
-
-    0
-}
-
-fn placements(mut states: &[State], runs: &[usize]) -> usize {
-    placements_rec(states, runs, 0)
 }
 
 fn part1(data: &str) -> usize {
     let mut sum = 0;
 
     for record in parse(data) {
-        //let mut arrangements = 0;
-        //for perm in record
-        //    .runs
-        //    .iter()
-        //    .cloned()
-        //    .permutations(record.runs.len())
-        //    .unique()
-        //{
-        //    arrangements += num_arrangements(&record.states, perm.as_slice());
-        //}
-        let arrangements = placements(&record.states, &record.runs);
-        //let arrangements = placements(&record.states, &record.runs);
+        let arrangements = num_arrangements(&record.states, &record.runs);
         sum += arrangements;
         tracing::debug!("{} {} arrangements", record, arrangements);
     }
@@ -258,8 +244,9 @@ fn part2(data: &str) -> usize {
 
 #[test]
 fn test1() {
-    assert_eq!(part1(include_str!("../data/day12.1.txt")), 9957702);
+    assert_eq!(part1(include_str!("../data/day12.1.txt")), 7939);
 }
+
 #[test]
 fn test2() {
     assert_eq!(part2(include_str!("../data/day12.1.txt")), 512240933238);

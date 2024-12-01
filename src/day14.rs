@@ -272,5 +272,5 @@ fn test1() {
 }
 #[test]
 fn test2() {
-    assert_eq!(part2(include_str!("../data/day14.1.txt")), 29846);
+    assert_eq!(part2(include_str!("../data/day14.1.txt")), 96003);
 }

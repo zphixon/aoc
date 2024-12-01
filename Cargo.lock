@@ -3,7 +3,7 @@
 version = 3
 
 [[package]]
-name = "aoc2023"
+name = "aoc2024"
 version = "0.1.0"
 dependencies = [
  "fnv",

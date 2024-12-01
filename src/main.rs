@@ -1,3 +1,5 @@
+pub mod util;
+
 macro_rules! main {
     ($($day_nums:tt),*) => { paste::paste! {
         $(mod [< day $day_nums >];)*
@@ -21,6 +23,12 @@ macro_rules! main {
                 std::process::exit(1);
             }
 
+            if example_arg {
+                tracing::info!("using example data");
+            } else {
+                tracing::info!("using real data");
+            }
+
             $(if day_args.contains(&$day_nums) {
                 [< day $day_nums >]::run(example_arg);
             })*
@@ -32,4 +40,5 @@ macro_rules! main {
     } };
 }
 
-main!(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+//main!(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+main!(1);

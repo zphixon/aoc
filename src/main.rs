@@ -40,4 +40,4 @@ macro_rules! main {
     } };
 }
 
-main!(1, 2);
+main!(1, 2, 3);

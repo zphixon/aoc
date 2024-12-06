@@ -1,5 +1,5 @@
 use crate::util::Direction;
-use std::{collections::BTreeSet, fmt::Display};
+use std::{collections::{BTreeSet, BTreeMap}, fmt::Display};
 
 pub fn run(example: bool) {
     let data = if example {
@@ -79,10 +79,10 @@ fn parse(data: &str) -> Vec<Vec<Tile>> {
 }
 
 fn visited(mut plane: Vec<Vec<Tile>>) -> (BTreeSet<(usize, usize, Direction)>, bool) {
-    let mut vis: Vec<Vec<String>> = plane
-        .iter()
-        .map(|row| row.iter().map(|tile| format!("{}", tile)).collect())
-        .collect();
+    //let mut vis: Vec<Vec<String>> = plane
+    //    .iter()
+    //    .map(|row| row.iter().map(|tile| format!("{}", tile)).collect())
+    //    .collect();
 
     let mut guard = None;
     for (rowi, row) in plane.iter().enumerate() {
@@ -95,24 +95,24 @@ fn visited(mut plane: Vec<Vec<Tile>>) -> (BTreeSet<(usize, usize, Direction)>, b
 
     let Some((mut guard_row, mut guard_col)) = guard else {
         tracing::error!("no guard");
-        return (BTreeSet::new(), false);
+        return (BTreeSet::default(), false);
     };
     let mut guard_dir = plane[guard_row][guard_col].dir().unwrap();
 
-    let mut visited = BTreeSet::new();
+    let mut visited = BTreeSet::default();
 
     visited.insert((guard_row, guard_col, guard_dir));
-    vis[guard_row][guard_col] = String::from("X");
+    //vis[guard_row][guard_col] = String::from("X");
 
-    // xdd
-    let mut fuel = 6250;
+    let mut cycle = false;
+    let mut hit_obstacles = BTreeMap::<(usize, usize), usize>::default();
 
     while let Some((next_row, next_col)) =
         guard_dir.apply_index(plane.as_slice(), guard_row, guard_col)
     {
-        fuel -= 1;
-        if fuel == 0 {
-            tracing::debug!("cycle?");
+        if hit_obstacles.get(&(next_row, next_col)) == Some(&2) {
+            cycle = true;
+            tracing::debug!("cycle");
             break;
         }
 
@@ -124,9 +124,9 @@ fn visited(mut plane: Vec<Vec<Tile>>) -> (BTreeSet<(usize, usize, Direction)>, b
             next_row,
             next_col
         );
-        for row in vis.iter() {
-            tracing::trace!("{}", row.join(""));
-        }
+        //for row in vis.iter() {
+        //    tracing::trace!("{}", row.join(""));
+        //}
 
         match guard_dir
             .apply(plane.as_slice(), guard_row, guard_col)
@@ -141,6 +141,7 @@ fn visited(mut plane: Vec<Vec<Tile>>) -> (BTreeSet<(usize, usize, Direction)>, b
                     guard_dir.right_90()
                 );
                 guard_dir = guard_dir.right_90();
+                *hit_obstacles.entry((next_row, next_col)).or_default() += 1;
             }
 
             Tile::Empty => {
@@ -150,20 +151,20 @@ fn visited(mut plane: Vec<Vec<Tile>>) -> (BTreeSet<(usize, usize, Direction)>, b
                 visited.insert((next_row, next_col, guard_dir));
                 guard_row = next_row;
                 guard_col = next_col;
-                vis[guard_row][guard_col] = String::from("X");
+                //vis[guard_row][guard_col] = String::from("X");
             }
 
             _ => unreachable!("guards plural?"),
         }
     }
 
-    if fuel == 0 {
-        for row in vis.iter() {
-            tracing::debug!("{}", row.join(""));
-        }
+    if cycle {
+        //for row in vis.iter() {
+        //    tracing::debug!("{}", row.join(""));
+        //}
     }
 
-    (visited, fuel == 0)
+    (visited, cycle)
 }
 
 fn part1(data: &str) -> usize {
@@ -199,7 +200,7 @@ fn part2(data: &str) -> usize {
     };
 
     // brute force go brrrrr
-    let mut cycles = BTreeSet::new();
+    let mut cycles = BTreeSet::default();
     for (visited_row, visited_col, _) in visited_dirs {
         if (visited_row, visited_col) == (guard_row, guard_col) {
             continue;
@@ -209,7 +210,7 @@ fn part2(data: &str) -> usize {
         let (tiles, cycle) = visited(plane);
         if cycle {
             tracing::debug!("cycle?");
-            cycles.insert(tiles);
+            cycles.insert(tiles.into_iter().collect::<std::collections::BTreeSet<_>>());
         }
     }
 

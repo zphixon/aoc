@@ -13,6 +13,11 @@ pub fn run(example: bool) {
         if example { " example" } else { "" },
         part1(data),
     );
+
+    if example {
+        tracing::warn!("used example data");
+    }
+
     tracing::info!("day 1 part 2{}", if example { " example" } else { "" });
     tracing::info!(
         "day 1 part 2{} result: {}",

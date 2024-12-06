@@ -24,17 +24,25 @@ macro_rules! main {
             }
 
             if example_arg {
-                tracing::info!("using example data");
+                tracing::warn!("using example data");
             } else {
                 tracing::info!("using real data");
             }
 
             $(if day_args.contains(&$day_nums) {
                 [< day $day_nums >]::run(example_arg);
+                if example_arg {
+                    tracing::warn!("used example data");
+                }
             })*
 
             if day_args.is_empty() {
-                $([< day $day_nums >]::run(example_arg);)*
+                $(
+                    [< day $day_nums >]::run(example_arg);
+                    if example_arg {
+                        tracing::warn!("used example data");
+                    }
+                )*
             }
         }
     } };

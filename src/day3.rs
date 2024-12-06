@@ -14,6 +14,9 @@ pub fn run(example: bool) {
         part1(data1),
     );
 
+    if example {
+        tracing::warn!("used example data");
+    }
 
     let data2 = if example {
         include_str!("../data/example/day3.2.txt")

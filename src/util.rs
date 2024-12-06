@@ -102,7 +102,12 @@ pub fn surrounding<'a, T: Debug>(
     row: usize,
     col: usize,
 ) -> impl Iterator<Item = SurroundingItem<'a, T>> {
-    tracing::trace!("look for items surrounding {:?} {},{}", plane[row][col], row, col);
+    tracing::trace!(
+        "look for items surrounding {:?} {},{}",
+        plane[row][col],
+        row,
+        col
+    );
     Surrounding {
         plane,
         row,

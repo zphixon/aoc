@@ -10,8 +10,9 @@ pub fn frequency<K: Eq + Hash>(iter: impl Iterator<Item = K>) -> HashMap<K, u64>
     counts
 }
 
+/// ord doesn't make sense but i need it to put it in btreeset so shrug
 #[rustfmt::skip]
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, PartialOrd, Ord)]
 pub enum Direction {
     NW, N, NE,
      W,     E,
@@ -33,7 +34,7 @@ impl Direction {
         }
     }
 
-    pub fn apply<'a, T>(
+    pub fn apply_index<'a, T>(
         &self,
         plane: &'a [Vec<T>],
         row: usize,
@@ -52,6 +53,25 @@ impl Direction {
             Some((off_row as usize, off_col as usize))
         } else {
             None
+        }
+    }
+
+    pub fn apply<'a, T>(&self, plane: &'a [Vec<T>], row: usize, col: usize) -> Option<&'a T> {
+        let (new_row, new_col) = self.apply_index(plane, row, col)?;
+        Some(&plane[new_row][new_col])
+    }
+
+    pub fn right_90(&self) -> Direction {
+        use Direction::*;
+        match self {
+            NW => NE,
+            N => E,
+            NE => SE,
+            W => N,
+            E => S,
+            SW => NW,
+            S => W,
+            SE => SW,
         }
     }
 }
@@ -79,7 +99,7 @@ impl<'a, T: Debug> Iterator for Surrounding<'a, T> {
         let dir = dirs[self.dir];
         self.dir += 1;
 
-        if let Some((off_row, off_col)) = dir.apply(&self.plane, self.row, self.col) {
+        if let Some((off_row, off_col)) = dir.apply_index(&self.plane, self.row, self.col) {
             tracing::trace!(
                 "{:?} {},{} is {:?} of {},{}",
                 self.plane[off_row][off_col],

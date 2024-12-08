@@ -331,10 +331,10 @@ fn part2(data: &str) -> u64 {
 
 #[test]
 fn test1() {
-    assert_eq!(part1(include_str!("../data/day7.1.txt")), 5067);
+    assert_eq!(part1(include_str!("../data/day7.1.txt")), 945512582195);
 }
 
 #[test]
 fn test2() {
-    assert_eq!(part2(include_str!("../data/day7.1.txt")), 1793);
+    assert_eq!(part2(include_str!("../data/day7.1.txt")), 271691107779347);
 }

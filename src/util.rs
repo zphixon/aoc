@@ -46,10 +46,7 @@ impl Direction {
         let off_row = row + row_off;
         let off_col = col + col_off;
 
-        if (0 <= off_row && off_row < plane.len() as isize)
-            && (0 <= off_col && off_col < plane[off_row as usize].len() as isize)
-            && !(row_off == 0 && col_off == 0)
-        {
+        if in_bounds(plane, off_row, off_col) && !(row_off == 0 && col_off == 0) {
             Some((off_row as usize, off_col as usize))
         } else {
             None
@@ -134,4 +131,9 @@ pub fn surrounding<'a, T: Debug>(
         col,
         dir: 0,
     }
+}
+
+pub fn in_bounds<'a, T>(plane: &'a [Vec<T>], row: isize, col: isize) -> bool {
+    (0 <= row && row < plane.len() as isize)
+        && (0 <= col && col < plane[row as usize].len() as isize)
 }

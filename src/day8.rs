@@ -173,6 +173,5 @@ fn test1() {
 
 #[test]
 fn test2() {
-    todo!();
-    //assert_eq!(part2(include_str!("../data/day8.1.txt")), 1793);
+    assert_eq!(part2(include_str!("../data/day8.1.txt")), 1200);
 }

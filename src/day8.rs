@@ -61,7 +61,10 @@ fn freq_locations(plane: &[Vec<Location>]) -> BTreeMap<char, BTreeSet<(usize, us
     locations
 }
 
-fn antinodes(plane: &[Vec<Location>], start: usize, iterations: usize) -> BTreeSet<(isize, isize)> {
+fn antinodes(
+    plane: &[Vec<Location>],
+    range: impl Iterator<Item = usize> + Clone,
+) -> BTreeSet<(isize, isize)> {
     let mut antinodes = BTreeSet::new();
 
     let freq_locations = freq_locations(plane);
@@ -92,7 +95,7 @@ fn antinodes(plane: &[Vec<Location>], start: usize, iterations: usize) -> BTreeS
                 b_col,
             );
 
-            for factor in start..=(start + iterations) {
+            for factor in range.clone() {
                 let mut had_in_bounds = false;
 
                 let factor = factor as isize;
@@ -154,14 +157,14 @@ fn debug_vis(plane: &[Vec<Location>], antinodes: &BTreeSet<(isize, isize)>) {
 
 fn part1(data: &str) -> usize {
     let plane = parse(data);
-    let antinodes = antinodes(&plane, 1, 0);
+    let antinodes = antinodes(&plane, 1..=1);
     debug_vis(&plane, &antinodes);
     antinodes.len()
 }
 
 fn part2(data: &str) -> usize {
     let plane = parse(data);
-    let antinodes = antinodes(&plane, 0, 100);
+    let antinodes = antinodes(&plane, 0..);
     debug_vis(&plane, &antinodes);
     antinodes.len()
 }

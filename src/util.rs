@@ -10,6 +10,11 @@ pub fn frequency<K: Eq + Hash>(iter: impl Iterator<Item = K>) -> HashMap<K, u64>
     counts
 }
 
+pub fn in_bounds_2d<'a, T>(plane: &'a [Vec<T>], row: isize, col: isize) -> bool {
+    (0 <= row && row < plane.len() as isize)
+        && (0 <= col && col < plane[row as usize].len() as isize)
+}
+
 /// ord doesn't make sense but i need it to put it in btreeset so shrug
 #[rustfmt::skip]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, PartialOrd, Ord)]
@@ -20,6 +25,19 @@ pub enum Direction {
 }
 
 impl Direction {
+    pub const ALL: [Direction; 8] = [
+        Direction::NW,
+        Direction::N,
+        Direction::NE,
+        Direction::W,
+        Direction::E,
+        Direction::SW,
+        Direction::S,
+        Direction::SE,
+    ];
+
+    pub const CARDINAL: [Direction; 4] = [Direction::N, Direction::S, Direction::E, Direction::W];
+
     pub fn to_offset(&self) -> (isize, isize) {
         use Direction::*;
         match self {
@@ -46,7 +64,7 @@ impl Direction {
         let off_row = row + row_off;
         let off_col = col + col_off;
 
-        if in_bounds(plane, off_row, off_col) && !(row_off == 0 && col_off == 0) {
+        if in_bounds_2d(plane, off_row, off_col) && !(row_off == 0 && col_off == 0) {
             Some((off_row as usize, off_col as usize))
         } else {
             None
@@ -77,6 +95,7 @@ pub type SurroundingItem<'a, T> = (&'a T, usize, usize, Direction);
 
 pub struct Surrounding<'a, T> {
     plane: &'a [Vec<T>],
+    dirs: &'static [Direction],
     dir: usize,
     row: usize,
     col: usize,
@@ -86,14 +105,12 @@ impl<'a, T: Debug> Iterator for Surrounding<'a, T> {
     type Item = SurroundingItem<'a, T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        use Direction::*;
-        let dirs = [NW, N, NE, W, E, SW, S, SE];
-        if self.dir >= dirs.len() {
+        if self.dir >= self.dirs.len() {
             tracing::trace!("no more dirs surrounding {},{}", self.row, self.col);
             return None;
         }
 
-        let dir = dirs[self.dir];
+        let dir = self.dirs[self.dir];
         self.dir += 1;
 
         if let Some((off_row, off_col)) = dir.apply_index(&self.plane, self.row, self.col) {
@@ -114,26 +131,40 @@ impl<'a, T: Debug> Iterator for Surrounding<'a, T> {
     }
 }
 
-pub fn surrounding<'a, T: Debug>(
+fn surrounding<'a, T: Debug>(
     plane: &'a [Vec<T>],
     row: usize,
     col: usize,
+    dirs: &'static [Direction],
 ) -> impl Iterator<Item = SurroundingItem<'a, T>> {
     tracing::trace!(
-        "look for items surrounding {:?} {},{}",
+        "look for items surrounding {:?} {},{} ({:?})",
         plane[row][col],
         row,
-        col
+        col,
+        dirs,
     );
     Surrounding {
         plane,
         row,
         col,
         dir: 0,
+        dirs,
     }
 }
 
-pub fn in_bounds<'a, T>(plane: &'a [Vec<T>], row: isize, col: isize) -> bool {
-    (0 <= row && row < plane.len() as isize)
-        && (0 <= col && col < plane[row as usize].len() as isize)
+pub fn surrounding_all<'a, T: Debug>(
+    plane: &'a [Vec<T>],
+    row: usize,
+    col: usize,
+) -> impl Iterator<Item = SurroundingItem<'a, T>> {
+    surrounding(plane, row, col, &Direction::ALL)
+}
+
+pub fn surrounding_cardinal<'a, T: Debug>(
+    plane: &'a [Vec<T>],
+    row: usize,
+    col: usize,
+) -> impl Iterator<Item = SurroundingItem<'a, T>> {
+    surrounding(plane, row, col, &Direction::CARDINAL)
 }

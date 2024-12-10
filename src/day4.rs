@@ -49,11 +49,11 @@ fn part1(data: &str) -> usize {
             if x == 'X' {
                 tracing::trace!("got an X");
                 for (&m, mrow, mcol, mdir) in
-                    util::surrounding(plane.as_slice(), xrow, xcol).filter(|(&m, _, _, _)| m == 'M')
+                    util::surrounding_all(plane.as_slice(), xrow, xcol).filter(|(&m, _, _, _)| m == 'M')
                 {
                     tracing::trace!("got an M {:?}", mdir);
                     'next_a: for (&a, arow, acol, adir) in
-                        util::surrounding(plane.as_slice(), mrow, mcol)
+                        util::surrounding_all(plane.as_slice(), mrow, mcol)
                             .filter(|(&a, _, _, _)| a == 'A')
                     {
                         tracing::trace!("got an A {:?}", adir);
@@ -63,7 +63,7 @@ fn part1(data: &str) -> usize {
                         }
 
                         'next_s: for (&s, srow, scol, sdir) in
-                            util::surrounding(plane.as_slice(), arow, acol)
+                            util::surrounding_all(plane.as_slice(), arow, acol)
                                 .filter(|(&s, _, _, _)| s == 'S')
                         {
                             tracing::trace!("got an S");
@@ -123,7 +123,7 @@ fn part2(data: &str) -> usize {
                 continue 'next_a;
             }
 
-            let around = util::surrounding(plane.as_slice(), row, col).collect::<Vec<_>>();
+            let around = util::surrounding_all(plane.as_slice(), row, col).collect::<Vec<_>>();
             match around.as_slice() {
                 // M M      M S      S S      S M
                 //  A        A        A        A

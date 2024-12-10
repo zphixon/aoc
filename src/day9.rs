@@ -5,7 +5,7 @@ pub fn run(example: bool) {
     let data = if example {
         include_str!("../data/example/day9.1.txt")
     } else {
-        include_str!("../data/day9.1.txt")
+        include_str!("../data/really_evil_input.txt")
     };
 
     tracing::info!("day 9 part 1{}", if example { " example" } else { "" });

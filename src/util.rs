@@ -15,6 +15,10 @@ pub fn in_bounds_2d<'a, T>(plane: &'a [Vec<T>], row: isize, col: isize) -> bool 
         && (0 <= col && col < plane[row as usize].len() as isize)
 }
 
+pub fn num_digits(n: u64) -> u32 {
+    n.checked_ilog10().unwrap_or(0) + 1
+}
+
 /// ord doesn't make sense but i need it to put it in btreeset so shrug
 #[rustfmt::skip]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, PartialOrd, Ord)]

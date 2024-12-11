@@ -3,6 +3,8 @@ use std::{
     str::FromStr,
 };
 
+use crate::util;
+
 pub fn run(example: bool) {
     let data = if example {
         include_str!("../data/example/day7.1.txt")
@@ -186,8 +188,7 @@ fn part1(data: &str) -> u64 {
 }
 
 fn concat(l: u64, r: u64) -> u64 {
-    let digits_in_r = r.checked_ilog10().unwrap_or(0) + 1;
-    l * (10u64.pow(digits_in_r)) + r
+    l * 10u64.pow(util::num_digits(r)) + r
 }
 
 fn part2(data: &str) -> u64 {

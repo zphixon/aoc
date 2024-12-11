@@ -51,7 +51,6 @@ fn size_space(data: &str) -> Vec<SizeSpace> {
         .collect::<Vec<_>>();
     if let Some(last) = tups
         .into_buffer()
-        .into_iter()
         .map(|last| SizeSpace {
             id: size_space.last().unwrap().id + 1,
             size: last,

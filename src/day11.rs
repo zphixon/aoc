@@ -1,5 +1,5 @@
-use std::collections::BTreeMap;
 use crate::util;
+use std::collections::BTreeMap;
 
 pub fn run(example: bool) {
     let data = if example {

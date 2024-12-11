@@ -70,7 +70,7 @@ fn is_safe(report: &[u64], skip: Option<usize>) -> bool {
         if let Some(prev_level) = prev {
             let diff = prev_level.abs_diff(level);
             tracing::trace!("prev={:?} level={}", prev_level, level);
-            if 1 <= diff && diff <= 3 {
+            if (1..=3).contains(&diff) {
                 tracing::trace!("good difference");
                 if prev_level > level {
                     tracing::debug!("decreasing");

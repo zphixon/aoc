@@ -62,7 +62,7 @@ impl FromStr for Equation {
 
 fn parse(data: &str) -> Vec<Equation> {
     data.lines()
-        .filter(|&line| line != "")
+        .filter(|&line| !line.is_empty())
         .map(Equation::from_str)
         .collect::<Result<_, _>>()
         .unwrap()

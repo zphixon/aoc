@@ -10,7 +10,7 @@ pub fn frequency<K: Eq + Hash>(iter: impl Iterator<Item = K>) -> HashMap<K, u64>
     counts
 }
 
-pub fn in_bounds_2d<'a, T>(plane: &'a [Vec<T>], row: isize, col: isize) -> bool {
+pub fn in_bounds_2d<T>(plane: &[Vec<T>], row: isize, col: isize) -> bool {
     (0 <= row && row < plane.len() as isize)
         && (0 <= col && col < plane[row as usize].len() as isize)
 }
@@ -56,9 +56,9 @@ impl Direction {
         }
     }
 
-    pub fn apply_index<'a, T>(
+    pub fn apply_index<T>(
         &self,
-        plane: &'a [Vec<T>],
+        plane: &[Vec<T>],
         row: usize,
         col: usize,
     ) -> Option<(usize, usize)> {
@@ -117,7 +117,7 @@ impl<'a, T: Debug> Iterator for Surrounding<'a, T> {
         let dir = self.dirs[self.dir];
         self.dir += 1;
 
-        if let Some((off_row, off_col)) = dir.apply_index(&self.plane, self.row, self.col) {
+        if let Some((off_row, off_col)) = dir.apply_index(self.plane, self.row, self.col) {
             tracing::trace!(
                 "{:?} {},{} is {:?} of {},{}",
                 self.plane[off_row][off_col],
@@ -157,18 +157,18 @@ fn surrounding<'a, T: Debug>(
     }
 }
 
-pub fn surrounding_all<'a, T: Debug>(
-    plane: &'a [Vec<T>],
+pub fn surrounding_all<T: Debug>(
+    plane: &[Vec<T>],
     row: usize,
     col: usize,
-) -> impl Iterator<Item = SurroundingItem<'a, T>> {
+) -> impl Iterator<Item = SurroundingItem<'_, T>> {
     surrounding(plane, row, col, &Direction::ALL)
 }
 
-pub fn surrounding_cardinal<'a, T: Debug>(
-    plane: &'a [Vec<T>],
+pub fn surrounding_cardinal<T: Debug>(
+    plane: &[Vec<T>],
     row: usize,
     col: usize,
-) -> impl Iterator<Item = SurroundingItem<'a, T>> {
+) -> impl Iterator<Item = SurroundingItem<'_, T>> {
     surrounding(plane, row, col, &Direction::CARDINAL)
 }

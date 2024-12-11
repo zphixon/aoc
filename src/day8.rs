@@ -101,7 +101,7 @@ fn antinodes(
                 let factor = factor as isize;
                 let a_antinode_row = a_row + (row_diff * factor);
                 let a_antinode_col = a_col + (col_diff * factor);
-                if util::in_bounds_2d(&plane, a_antinode_row, a_antinode_col) {
+                if util::in_bounds_2d(plane, a_antinode_row, a_antinode_col) {
                     tracing::trace!("antinode at {},{}", a_antinode_row, a_antinode_col);
                     antinodes.insert((a_antinode_row, a_antinode_col));
                     had_in_bounds = true;
@@ -111,7 +111,7 @@ fn antinodes(
 
                 let b_antinode_row = b_row - (row_diff * factor);
                 let b_antinode_col = b_col - (col_diff * factor);
-                if util::in_bounds_2d(&plane, b_antinode_row, b_antinode_col) {
+                if util::in_bounds_2d(plane, b_antinode_row, b_antinode_col) {
                     tracing::trace!("antinode at {},{}", b_antinode_row, b_antinode_col);
                     antinodes.insert((b_antinode_row, b_antinode_col));
                     had_in_bounds = true;

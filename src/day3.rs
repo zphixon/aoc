@@ -93,13 +93,11 @@ fn do_the_thing(data: &str, toggle_stuff: bool) -> u64 {
                 want = Want::Keyword;
                 continue;
             }
-        } else {
-            if matches!(token, Token::Other | Token::Do | Token::Dont) {
-                first = None;
-                second = None;
-                want = Want::Keyword;
-                continue;
-            }
+        } else if matches!(token, Token::Other | Token::Do | Token::Dont) {
+            first = None;
+            second = None;
+            want = Want::Keyword;
+            continue;
         }
 
         tracing::trace!("want={:?} token={:?} {:?}", want, token, lex.slice());

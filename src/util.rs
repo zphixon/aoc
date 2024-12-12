@@ -1,4 +1,8 @@
-use std::{collections::HashMap, fmt::Debug, hash::Hash};
+use std::{
+    collections::{BTreeSet, HashMap},
+    fmt::Debug,
+    hash::Hash,
+};
 
 pub fn frequency<K: Eq + Hash>(iter: impl Iterator<Item = K>) -> HashMap<K, u64> {
     let mut counts = HashMap::new();
@@ -171,4 +175,31 @@ pub fn surrounding_cardinal<T: Debug>(
     col: usize,
 ) -> impl Iterator<Item = SurroundingItem<'_, T>> {
     surrounding(plane, row, col, &Direction::CARDINAL)
+}
+
+pub fn flood_fill<T: Debug + PartialEq<T>>(
+    plane: &[Vec<T>],
+    row: usize,
+    col: usize,
+) -> BTreeSet<(usize, usize)> {
+    let mut seen = BTreeSet::new();
+    let mut region = BTreeSet::from([(row, col)]);
+    let t = &plane[row][col];
+
+    let mut queue = vec![(row, col)];
+    while let Some((row, col)) = queue.pop() {
+        if seen.contains(&(row, col)) {
+            continue;
+        }
+        seen.insert((row, col));
+        region.insert((row, col));
+
+        for (elt, search_row, search_col, _) in surrounding_cardinal(plane, row, col) {
+            if elt == t {
+                queue.push((search_row, search_col));
+            }
+        }
+    }
+
+    region
 }
